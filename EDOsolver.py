@@ -7,7 +7,7 @@ from tensorflow.keras.optimizers import RMSprop, Adam
 
 from matplotlib import pyplot as plt
 import numpy as np
-
+import math
 class ODEsolver(Sequential):
 
 
@@ -22,7 +22,7 @@ class ODEsolver(Sequential):
 
     def train_step(self, data):
         batch_size = tf.shape(data)[0]
-        x= tf.random.uniform((batch_size,1), minval =-2, maxval =2)
+        x= tf.random.uniform((batch_size,1), minval =-5, maxval =5)
 
         with tf.GradientTape() as tape:
 
@@ -32,8 +32,8 @@ class ODEsolver(Sequential):
             dy= tape2.gradient(y_pred,x)
             x_o = tf.zeros((batch_size,1))
             y_o = self(x_o, training=True)
-            eq = dy+2.*x*y_pred
-            ic = y_o - 1.
+            eq = (dy)*(x)+(y_pred)-(x**2)
+            ic = y_o
             loss = keras.losses.mean_squared_error(0., eq) +keras.losses.mean_squared_error(0., ic)
 
         grads = tape.gradient(loss , self.trainable_variables)
@@ -42,6 +42,10 @@ class ODEsolver(Sequential):
         self.loss_tracker.update_state(loss)
 
         return {"loss": self.loss_tracker.result()}
+
+
+
+
 
 model = ODEsolver()
 
@@ -56,19 +60,20 @@ model.summary()
 model.compile(optimizer=RMSprop(),metrics=['loss'])
 
 
-x=tf.linspace(-2,2,100)
-history = model.fit(x,epochs=500,verbose=1)
+x=tf.linspace(-5,5,1000)
+history = model.fit(x,epochs=1000,verbose=1)
 
 
-x_testv = tf.linspace(-2,2,100)
+x_testv = tf.linspace(-5,5,1000)
 a = model.predict(x_testv)
 plt.plot(x_testv,a)
-plt.plot(x_testv,np.exp(-x*x))
+plt.plot(x_testv,((x**2)/3))
 plt.show()
-exit()
+
 
 
 
 model.save("red.h5")
 
 modelo_encargado = tf.keras.models.load_model('red.h5')
+exit()
