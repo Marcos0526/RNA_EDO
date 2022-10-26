@@ -32,7 +32,7 @@ class ODEsolver(Sequential):
             dy= tape2.gradient(y_pred,x)
             x_o = tf.zeros((batch_size,1))
             y_o = self(x_o, training=True)
-            eq = 3*tf.math.sin(math.pi*x)
+            eq = dy*x+y_pred-(x**2)
             ic = y_o
             loss = keras.losses.mean_squared_error(0., eq) +keras.losses.mean_squared_error(0., ic)
 
@@ -67,7 +67,7 @@ history = model.fit(x,epochs=1000,verbose=1)
 x_testv = tf.linspace(-1,1,1000)
 a = model.predict(x_testv)
 plt.plot(x_testv,a)
-plt.plot(x_testv,3*tf.math.sin(math.pi*x))
+plt.plot(x_testv,((x**2)/3))
 plt.show()
 exit()
 
